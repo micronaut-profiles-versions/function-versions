@@ -1,0 +1,5 @@
+profile: function-aws
+defaultPackage: my.lambda.function
+---
+testFramework: junit
+sourceLanguage: java

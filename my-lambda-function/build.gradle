@@ -34,7 +34,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom 'io.micronaut:bom:1.0.0.M1'
+        mavenBom 'io.micronaut:bom:1.0.0.M2'
     }
 }
 
@@ -57,6 +57,8 @@ dependencies {
 shadowJar {
     mergeServiceFiles()
 }
+
+run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1')
 import jp.classmethod.aws.gradle.lambda.AWSLambdaMigrateFunctionTask
 import com.amazonaws.services.lambda.model.Runtime
 
@@ -70,14 +72,17 @@ jar {
     }
 }
 
-task deploy(type: AWSLambdaMigrateFunctionTask, dependsOn: shadowJar) {
-    functionName = "my-lambda-function"
-    handler = "io.micronaut.function.aws.MicronautRequestStreamHandler"
-    role = "arn:aws:iam::${aws.accountId}:role/lambda_basic_execution"
-    runtime = Runtime.Java8
-    zipFile = shadowJar.archivePath
-    memorySize = 256
-    timeout = 60
+if(new File("${System.getProperty("user.home")}/.aws/credentials").exists()) {
+    task deploy(type: AWSLambdaMigrateFunctionTask, dependsOn: shadowJar) {
+        functionName = "my-lambda-function"
+        handler = "io.micronaut.function.aws.MicronautRequestStreamHandler"
+        role = "arn:aws:iam::${aws.accountId}:role/lambda_basic_execution"
+        runtime = Runtime.Java8
+        zipFile = shadowJar.archivePath
+        memorySize = 256
+        timeout = 60
+    }
+
 }
 compileJava.options.compilerArgs += '-parameters'
 compileTestJava.options.compilerArgs += '-parameters'
